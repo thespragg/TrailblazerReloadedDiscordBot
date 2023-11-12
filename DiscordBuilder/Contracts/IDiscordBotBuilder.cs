@@ -1,3 +1,4 @@
+using Discord;
 using Discord.WebSocket;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
@@ -16,4 +17,5 @@ public interface IDiscordBotBuilder
     IDiscordBotBuilder ConfigureApplicationLogging(Action<LoggerConfiguration> configure);
     IDiscordBotBuilder AddDefaultDiscordLogging();
     IDiscordBotBuilder ConfigureServices(Action<IServiceCollection> services);
+    IDiscordBotBuilder SetIntents(GatewayIntents intents);
 }

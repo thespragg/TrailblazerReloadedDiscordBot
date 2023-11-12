@@ -72,9 +72,9 @@ public class ParserTests
         parser.AddCommands<MockCommands>();
         
         var res = parser.Parse(ValidCommand2Parts);
-        res?.InvokeAsync(new Context());
+        var inv = await res?.InvokeAsync(new Context())!;
         Assert.NotNull(res);
-        Assert.True(await res.InvokeAsync());
+        Assert.True(inv);
     }
 }
 

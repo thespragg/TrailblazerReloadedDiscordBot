@@ -16,10 +16,15 @@ public class DiscordBotBuilder : IDiscordBotBuilder
     private readonly DiscordSocketConfig _discordConfig;
     private bool DefaultLogging { get; set; }
     private readonly IParser<SocketMessage> _parser = new Parser<SocketMessage>();
+    private readonly string _botPrefix;
 
-    internal DiscordBotBuilder()
+    internal DiscordBotBuilder(string botPrefix)
     {
-        _discordConfig = new DiscordSocketConfig();
+        _botPrefix = botPrefix;
+        _discordConfig = new DiscordSocketConfig
+        {
+            GatewayIntents = GatewayIntents.All
+        };
         Configuration = new ConfigurationManager()
             .AddJsonFile("appsettings.json")
             .AddJsonFile("appsettings.custom.json", true)
@@ -28,13 +33,18 @@ public class DiscordBotBuilder : IDiscordBotBuilder
 
         Services = new ServiceCollection();
     }
-
     private IServiceCollection Services { get; }
     public IConfiguration Configuration { get; }
 
     public IDiscordBotBuilder Configure(Action<DiscordSocketConfig> configure)
     {
         configure.Invoke(_discordConfig);
+        return this;
+    }
+
+    public IDiscordBotBuilder SetIntents(GatewayIntents intents)
+    {
+        _discordConfig.GatewayIntents = intents;
         return this;
     }
 
@@ -50,9 +60,10 @@ public class DiscordBotBuilder : IDiscordBotBuilder
             .AddSingleton(Configuration)
             .AddSingleton(_discordConfig)
             .AddSingleton<DiscordSocketClient>();
-
+        
         var sp = Services.BuildServiceProvider();
-        var bot = new DiscordBot(sp, _parser);
+        _parser.AddDependencyInjection(sp);
+        var bot = new DiscordBot(_botPrefix, sp, _parser);
         if (!DefaultLogging) return bot;
 
         var client = bot.Services.GetRequiredService<DiscordSocketClient>();

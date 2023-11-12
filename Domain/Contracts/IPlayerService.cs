@@ -1,6 +1,6 @@
 namespace Domain.Contracts;
 
-public class IUserRepository
+public interface IPlayerService
 {
     
 }

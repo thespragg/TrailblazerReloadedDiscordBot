@@ -18,7 +18,6 @@ public interface IParser<TContext>
     /// <summary>
     /// Add a class containing commands to the parser.
     /// </summary>
-    /// <typeparam name="TCommands"></typeparam>
     void AddCommands(Type type);
     
     /// <summary>
@@ -34,6 +33,8 @@ public interface IParser<TContext>
     IParserResult<TContext>? Parse(IEnumerable<string> commandParts);
 
     IReadOnlyList<IVerb> Verbs { get; }
+
+    void AddDependencyInjection(IServiceProvider services);
 }
 
 /// <summary>

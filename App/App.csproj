@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <RootNamespace>App</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,11 +30,15 @@
       <None Update="appsettings.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="appsettings.custom.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\DiscordBuilder\DiscordBuilder.csproj" />
       <ProjectReference Include="..\Infrastructure.Data\Infrastructure.Data.csproj" />
+      <ProjectReference Include="..\Infrastructure.Hiscores\Infrastructure.Hiscores.csproj" />
       <ProjectReference Include="..\Interface.Commands\Interface.Commands.csproj" />
     </ItemGroup>
 

@@ -2,6 +2,7 @@
 using CommandParser.Attributes;
 using CommandParser.Contracts;
 using CommandParser.Exceptions;
+using CommandParser.Extensions;
 using CommandParser.Models;
 using JetBrains.Annotations;
 
@@ -71,19 +72,17 @@ public class Parser<TContext> : IParser<TContext> where TContext : class
         try
         {
             ArgumentNullException.ThrowIfNull(commandParts);
-            var enumerable = commandParts as string[] ?? commandParts.ToArray();
+            var enumerable = commandParts.ToSafeList();
 
-            if (_verbs.Count == 0 || enumerable.Length == 0) return null;
+            if (_verbs.Count == 0 || enumerable.Count == 0) return null;
 
+            var res = FindCommand(enumerable[0]!, enumerable[1]);
+            if (res is null) throw new Exception("Failed to find command");
+            var (verb, cmd) = res.Value;
             var skip = 0;
-            var verb = FindVerb(enumerable[0]);
-            if (verb != null) skip += 1;
-            var command = FindCommand(enumerable[1], verb);
-            command ??= FindMiscellaneousCommand(enumerable[1]);
+            if (!string.IsNullOrEmpty(verb.VerbName)) skip += 1;
             skip += 1;
-            return command is null
-                ? throw new Exception("Failed to find command")
-                : new ParserResult<TContext>(enumerable.Skip(skip), command, verb, Services);
+            return new ParserResult<TContext>(enumerable.Skip(skip), cmd, verb, Services);
         }
         catch (Exception ex)
         {
@@ -92,21 +91,24 @@ public class Parser<TContext> : IParser<TContext> where TContext : class
         }
     }
 
-    private IVerb? FindVerb(string verbName)
+    private (IVerb, ICommand)? FindCommand(string commandText, string? verbName)
+    {
+        var verb = FindVerb(verbName) ?? FindMiscellaneousVerb(commandText);
+        if (verb is null) return null;
+        var cmd = FindCommand(commandText, verb);
+        if (cmd is null) return null;
+        return (verb, cmd);
+    }
+
+    private IVerb? FindVerb(string? verbName)
         => _verbs.FirstOrDefault(x =>
             x.VerbName?.Equals(verbName, StringComparison.InvariantCultureIgnoreCase) ?? false);
 
+    private IVerb? FindMiscellaneousVerb(string commandName)
+        => _verbs.FirstOrDefault(x => x.Commands.Any(c => c.CommandText == commandName));
+
     private static ICommand? FindCommand(string commandText, IVerb? verb)
         => verb?.Commands.FirstOrDefault(x => x.CommandText == commandText);
-
-    private ICommand? FindMiscellaneousCommand(string command)
-        => _verbs
-            .FirstOrDefault(x =>
-                string.IsNullOrEmpty(x.VerbName)
-                && x.Commands.Any(j => j.CommandText == command)
-            )?
-            .Commands
-            .FirstOrDefault(x => x.CommandText == command);
 
     public void ConfigureHelpGenerator(Func<HelpSection, string> configure)
         => HelpMethodGenerator = configure;
@@ -147,4 +149,6 @@ public class Parser<TContext> : IParser<TContext> where TContext : class
     }
 }
 
-public class Parser: Parser<EmptyContext> { }
+public class Parser : Parser<EmptyContext>
+{
+}

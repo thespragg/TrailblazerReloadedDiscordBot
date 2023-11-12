@@ -18,15 +18,17 @@ namespace CommandParser
         internal ParserResult(IEnumerable<string> args, ICommand command, IVerb verb, IServiceProvider? sp)
         {
             _commandValue = command;
-            _args = args;
             _sp = sp;
             _verb = verb;
+            _args = args.Where(x =>
+                !x.Equals(verb?.VerbName, StringComparison.InvariantCultureIgnoreCase)
+                && !x.Equals(command.CommandText, StringComparison.InvariantCultureIgnoreCase)).ToArray();
         }
 
         public async Task<bool> InvokeAsync()
             => await InvokeAsync(null);
 
-        public async Task<bool> InvokeAsync(TContext? ctx) 
+        public async Task<bool> InvokeAsync(TContext? ctx)
         {
             if (typeof(TContext) == typeof(EmptyContext)) ctx = new EmptyContext() as TContext;
             try
@@ -79,7 +81,8 @@ namespace CommandParser
                 }
                 catch (Exception ex)
                 {
-                    throw new ArgumentException($"Failed to convert string '{stringValue}' to type {parameterType}.", ex);
+                    throw new ArgumentException($"Failed to convert string '{stringValue}' to type {parameterType}.",
+                        ex);
                 }
             }));
 

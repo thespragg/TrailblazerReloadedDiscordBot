@@ -11,4 +11,8 @@
       <ProjectReference Include="..\Infrastructure.Data\Infrastructure.Data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Discord.Net.WebSocket" Version="3.12.0" />
+    </ItemGroup>
+
 </Project>
