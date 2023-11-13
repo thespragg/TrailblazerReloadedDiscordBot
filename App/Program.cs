@@ -1,5 +1,7 @@
 ﻿using Discord;
 using DiscordBuilder.Contracts;
+using Domain;
+using Domain.Contracts;
 using Infrastructure.Data;
 using Infrastructure.Hiscores;
 using Interface.Commands.Commands;
@@ -16,8 +18,9 @@ public abstract class Program
             .SetIntents(GatewayIntents.MessageContent | GatewayIntents.AllUnprivileged)
             .ConfigureServices(sc =>
             {
-                sc.AddScoped<IUserRepository, UserRepository>();
+                sc.AddData();
                 sc.AddHiscoreProvider();
+                sc.AddDomain();
             })
             .AddCommands<AccountCommands>()
             .ConfigureApplicationLogging(logger => logger.WriteTo.Console())

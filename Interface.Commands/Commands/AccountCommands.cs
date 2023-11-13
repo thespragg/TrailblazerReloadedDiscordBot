@@ -2,35 +2,43 @@ using System.Text;
 using CommandParser.Attributes;
 using Discord;
 using Discord.WebSocket;
+using Domain.Contracts;
 using Infrastructure.Data;
 
 namespace Interface.Commands.Commands;
 
 [Verb]
-public class AccountCommands
+public class AccountCommands(IPlayerService playerService, IStatService statService)
 {
-    private readonly IUserRepository _repo;
-
-    public AccountCommands(IUserRepository repo)
-        => _repo = repo;
-
-    [Command("register", "Adds an ign the bots player list.")]
+    [Command("register", "Adds an ign to the bots player list.")]
     public async Task Register(SocketMessage ctx, string name)
+        => await RegisterOther(ctx, name, ctx.Author.Id);
+    
+    [Command("register-other", "Adds an ign to the bots player list for someone else, must contain the discord id of that user.")]
+    public async Task RegisterOther(SocketMessage ctx, string name, ulong id)
     {
-        var user = _repo.GetUserByIgn(name);
+        var playerStats = await statService.GetStats(name);
+        if (playerStats is null)
+        {
+            await ctx.Channel.SendMessageAsync($"Couldn't find {name} on the hiscores, player not registered.");
+            return;
+        }
+        
+        var user = playerService.GetPlayer(name);
         if (user is not null)
         {
             await ctx.Channel.SendMessageAsync("That username has already been registered.");
             return;
         }
-        _repo.RegisterUser(name, ctx.Author.Id);
+        
+        playerService.RegisterPlayer(name, playerStats, id);
         await ctx.Channel.SendMessageAsync($"Added {name}.");
     }
 
-    [Command("users", "Lists all the registered players.")]
-    public async Task Users(SocketMessage ctx)
+    [Command("players", "Lists all the registered players.")]
+    public async Task Players(SocketMessage ctx)
     {
-        var users = _repo.GetUsers();
+        var users = playerService.GetPlayers();
         var sb = new StringBuilder();
         sb.AppendLine("Registered Users:");
         sb.AppendLine();
@@ -50,7 +58,7 @@ public class AccountCommands
     [Command("remove", "Removes a registered player.")]
     public async Task Remove(SocketMessage ctx, string name)
     {
-        var user = _repo.GetUserByIgn(name);
+        var user = playerService.GetPlayer(name);
         if (user is null)
         {
             await ctx.Channel.SendMessageAsync($"No user with ign {name} found.");
@@ -70,7 +78,7 @@ public class AccountCommands
             return;
         }
 
-        _repo.DeleteUser(user.Id);
+        playerService.DeletePlayer(user.Username);
         await ctx.Channel.SendMessageAsync($"User {name} removed from the rankings.");
     }
 }

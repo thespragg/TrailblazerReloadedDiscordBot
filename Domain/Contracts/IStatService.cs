@@ -4,5 +4,5 @@ namespace Domain.Contracts;
 
 public interface IStatService
 {
-    Task<PlayerStats> GetStats(string username);
+    Task<PlayerStats?> GetStats(string username);
 }
