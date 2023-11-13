@@ -23,6 +23,7 @@ public abstract class Program
                 sc.AddDomain();
             })
             .AddCommands<AccountCommands>()
+            .AddCommands<TopCommands>()
             .ConfigureApplicationLogging(logger => logger.WriteTo.Console())
             .AddDefaultDiscordLogging()
             .Build()

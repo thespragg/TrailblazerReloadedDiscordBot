@@ -4,9 +4,9 @@ namespace Domain.Contracts;
 
 public interface IPlayerService
 {
-    IEnumerable<PlayerEntity> GetPlayers();
-    PlayerEntity? GetPlayer(string ign);
-    void RegisterPlayer(string ign, PlayerStats stats, ulong registrant);
-    void UpdatePlayer(PlayerEntity player);
-    void DeletePlayer(string ign);
+    Result<IEnumerable<PlayerEntity>> GetPlayers();
+    Result<PlayerEntity?> GetPlayer(string ign);
+    Task<Result<Unit>> RegisterPlayer(string ign, ulong registrant);
+    Task<Result<Unit>> UpdatePlayerStats(string username);
+    Result<Unit> DeletePlayer(string ign);
 }

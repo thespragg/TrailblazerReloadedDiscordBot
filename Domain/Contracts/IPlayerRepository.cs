@@ -8,4 +8,5 @@ public interface IPlayerRepository
     IEnumerable<PlayerEntity> GetPlayers();
     PlayerEntity? GetPlayerByIgn(string ign);
     void DeletePlayer(int id);
+    void Update(string ign, PlayerStats stats);
 }

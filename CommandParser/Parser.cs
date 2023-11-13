@@ -105,10 +105,10 @@ public class Parser<TContext> : IParser<TContext> where TContext : class
             x.VerbName?.Equals(verbName, StringComparison.InvariantCultureIgnoreCase) ?? false);
 
     private IVerb? FindMiscellaneousVerb(string commandName)
-        => _verbs.FirstOrDefault(x => x.Commands.Any(c => c.CommandText == commandName));
+        => _verbs.FirstOrDefault(x => x.Commands.Any(c => c.CommandText.Equals(commandName, StringComparison.InvariantCultureIgnoreCase)));
 
     private static ICommand? FindCommand(string commandText, IVerb? verb)
-        => verb?.Commands.FirstOrDefault(x => x.CommandText == commandText);
+        => verb?.Commands.FirstOrDefault(x => x.CommandText.Equals(commandText, StringComparison.InvariantCultureIgnoreCase));
 
     public void ConfigureHelpGenerator(Func<HelpSection, string> configure)
         => HelpMethodGenerator = configure;

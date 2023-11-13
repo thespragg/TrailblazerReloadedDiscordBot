@@ -7,5 +7,5 @@ namespace Infrastructure.Hiscores;
 public static class Registration
 {
     public static IServiceCollection AddHiscoreProvider(this IServiceCollection sp)
-        => sp.AddSingleton<IStatService, HiscoresStatService>();
+        => sp.AddHttpClient<IStatService, HiscoresStatService>().Services;
 }

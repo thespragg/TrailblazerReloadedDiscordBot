@@ -19,11 +19,16 @@ public class StatRetrievalWorker : IHostedService, IDisposable
         return Task.CompletedTask;
     }
 
-    private static void CheckStats(object? state)
+    private void CheckStats(object? state)
     {
-        // Get players
-        // Iterate to get stats
-        // Save player with updated stats
+        var players = _playerService.GetPlayers().Value;
+        if (players is null) return;
+        
+        foreach (var player in players)
+        {
+            _playerService.UpdatePlayerStats(player.Username);
+            Thread.Sleep(50);
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

@@ -51,4 +51,19 @@ public class PlayerRepository : IPlayerRepository
                 Stats = player.Stats
             }
             : null;
+
+    public void Update(string ign, PlayerStats stats)
+    {
+        var user = Users.FindOne(x => x.Username == ign);
+        if (user is null) return;
+
+        var newEntity = new Player
+        {
+            Id = user.Id,
+            DiscordId = user.DiscordId,
+            Username = user.Username,
+            Stats = stats,
+        };
+        Users.Update(newEntity);
+    }
 }
