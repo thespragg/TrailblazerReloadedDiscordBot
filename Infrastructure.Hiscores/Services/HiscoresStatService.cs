@@ -21,7 +21,7 @@ public class HiscoresStatService : IStatService
 
     public async Task<PlayerStats?> GetStats(string username)
     {
-        var res = await _httpClient.GetAsync(StatUrl + username);
+        var res = await _httpClient.GetAsync(SeasonalStatUrl + username);
         if (!res.IsSuccessStatusCode) return null;
         try
         {

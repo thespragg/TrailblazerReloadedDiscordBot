@@ -53,7 +53,10 @@ namespace CommandParser
         private void ValidateArgumentCount()
         {
             var type = typeof(TContext);
-            var mParams = _commandValue.Method.GetParameters().Where(x => x.ParameterType != type)
+            var mParams = _commandValue
+                .Method
+                .GetParameters()
+                .Where(x => x.ParameterType != type)
                 .ToArray();
             if (_args.Count() != mParams.Length)
             {
