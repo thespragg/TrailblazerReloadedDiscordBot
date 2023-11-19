@@ -26,7 +26,7 @@ public class AccountCommands
     [Command("register-other", "Adds an ign to the bots player list for someone else, must contain the discord id of that user.")]
     public async Task RegisterOther(SocketMessage ctx, string name, ulong id)
     {
-        var res = await _playerService.RegisterPlayer(name, id);
+        await _playerService.RegisterPlayer(name, id);
         await ctx.Channel.SendMessageAsync($"Added {name}.");
     }
 
