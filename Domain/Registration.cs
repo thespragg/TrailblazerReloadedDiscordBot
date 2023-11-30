@@ -9,6 +9,6 @@ public static class Registration
 {
     public static IServiceCollection AddDomain(this IServiceCollection sp)
         => sp
-            .AddHostedService<StatRetrievalWorker>()
+            .AddSingleton<IStatRetrievalWorker, StatRetrievalWorker>()
             .AddScoped<IPlayerService, PlayerService>();
 }

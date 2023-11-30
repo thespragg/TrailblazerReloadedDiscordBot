@@ -18,14 +18,18 @@ public class AccountCommands
     {
         _playerService = playerService;
     }
-    
+
     [Command("register", "Adds an ign to the bots player list.")]
     public async Task Register(SocketMessage ctx, string name)
-        => await RegisterOther(ctx, name, ctx.Author.Id);
+    {
+        await _playerService.RegisterPlayer(name, ctx.Author.Id);
+        await ctx.Channel.SendMessageAsync($"Added {name}.");
+    }
     
     [Command("register-other", "Adds an ign to the bots player list for someone else, must contain the discord id of that user.")]
-    public async Task RegisterOther(SocketMessage ctx, string name, ulong id)
+    public async Task RegisterOther(SocketMessage ctx, string name)
     {
+        var id = ctx.MentionedUsers.First().Id;
         await _playerService.RegisterPlayer(name, id);
         await ctx.Channel.SendMessageAsync($"Added {name}.");
     }

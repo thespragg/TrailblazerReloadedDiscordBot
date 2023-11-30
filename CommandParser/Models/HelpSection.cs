@@ -2,7 +2,7 @@ namespace CommandParser.Models;
 
 public class HelpSection
 {
-    public required string Verb { get; init; }
+    public string? Verb { get; init; }
     public string? VerbHelpText { get; init; }
     public IEnumerable<CommandSection> Commands { get; init; } = Enumerable.Empty<CommandSection>();
 }

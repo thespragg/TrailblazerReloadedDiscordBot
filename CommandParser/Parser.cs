@@ -77,12 +77,16 @@ public class Parser<TContext> : IParser<TContext> where TContext : class
             if (_verbs.Count == 0 || enumerable.Count == 0) return null;
 
             var res = FindCommand(enumerable[0]!, enumerable[1]);
-            if (res is null) throw new Exception("Failed to find command");
+            if (res is null) throw new CommandNotFoundException();
             var (verb, cmd) = res.Value;
             var skip = 0;
             if (!string.IsNullOrEmpty(verb.VerbName)) skip += 1;
             skip += 1;
             return new ParserResult<TContext>(enumerable.Skip(skip), cmd, verb, Services);
+        }
+        catch (CommandNotFoundException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -112,33 +116,36 @@ public class Parser<TContext> : IParser<TContext> where TContext : class
 
     public void ConfigureHelpGenerator(Func<HelpSection, string> configure)
         => HelpMethodGenerator = configure;
-
-    // Needs to also handle misc section
+    
     public IEnumerable<string> GenerateHelp()
-        => _verbs
-            .Where(x => !string.IsNullOrEmpty(x.VerbName))
-            .Select(x => new HelpSection
-            {
-                Verb = x.VerbName!,
-                VerbHelpText = x.HelpText,
-                Commands = x.Commands.Select(j => new CommandSection
-                {
-                    Command = j.CommandText,
-                    CommandHelpText = j.HelpText
-                })
-            })
-            .Select(HelpMethodGenerator ?? GenerateHelpForVerb)
-            .ToList();
+    {
+        var cmds = _verbs
+                    .Select(x => new HelpSection
+                    {
+                        Verb = x.VerbName!,
+                        VerbHelpText = x.HelpText,
+                        Commands = x.Commands.Select(j => new CommandSection
+                        {
+                            Command = j.CommandText,
+                            CommandHelpText = j.HelpText
+                        })
+                    })
+                    .Select(HelpMethodGenerator ?? GenerateHelpForVerb)
+                    .ToList();
+        return cmds;
+    }
 
     private static string GenerateHelpForVerb(HelpSection? verb)
     {
         if (verb == null) return string.Empty;
         var sb = new StringBuilder();
 
-        sb.AppendLine($"{verb.Verb} COMMANDS:");
-        sb.AppendLine();
-        sb.AppendLine(verb.VerbHelpText);
-        sb.AppendLine();
+        if (!string.IsNullOrEmpty(verb.Verb))
+        {
+            sb.AppendLine($"{verb.Verb} COMMANDS:");
+            sb.AppendLine(verb.VerbHelpText);
+            sb.AppendLine();
+        }
 
         foreach (var cmd in verb.Commands)
         {

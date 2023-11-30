@@ -58,7 +58,7 @@ namespace CommandParser
                 .GetParameters()
                 .Where(x => x.ParameterType != type)
                 .ToArray();
-            if (_args.Count() != mParams.Length)
+            if (_args.Count() < mParams.Length)
             {
                 throw new ArgumentException("Number of strings does not match the number of method parameters.");
             }
@@ -75,7 +75,7 @@ namespace CommandParser
                 methodParams = methodParams.Where(x => x.ParameterType != typeof(TContext)).ToArray();
             }
 
-            parameterValues.AddRange(_args.Select((stringValue, index) =>
+            var vals = _args.Take(methodParams.Length).Select((stringValue, index) =>
             {
                 var parameterType = methodParams[index].ParameterType;
                 try
@@ -87,7 +87,8 @@ namespace CommandParser
                     throw new ArgumentException($"Failed to convert string '{stringValue}' to type {parameterType}.",
                         ex);
                 }
-            }));
+            });
+            parameterValues.AddRange(vals);
 
             return parameterValues.ToArray();
         }

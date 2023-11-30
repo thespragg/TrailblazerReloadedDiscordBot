@@ -35,6 +35,7 @@ public interface IParser<TContext>
     IReadOnlyList<IVerb> Verbs { get; }
 
     void AddDependencyInjection(IServiceProvider services);
+    IEnumerable<string> GenerateHelp();
 }
 
 /// <summary>

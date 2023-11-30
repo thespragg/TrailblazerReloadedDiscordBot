@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using CommandParser.Attributes;
 using Discord;
@@ -62,6 +63,8 @@ public class TopCommands
             return;
         }
 
+        if (skill.ToLower().Equals("points")) skill = "leaguepoints";
+
         var playerWithStats = players?.FirstOrDefault(x => x.Stats is not null && x.Stats.Skills.Count > 0)?.Stats;
         if (playerWithStats is null)
         {
@@ -76,9 +79,9 @@ public class TopCommands
         await ctx.Channel.SendMessageAsync(GetTopTen(skill.ToTitleCase(), stats));
     }
 
-    private string GetTopTen(string skill, IEnumerable<(string, int)> values)
+    private static string GetTopTen(string skill, IEnumerable<(string, int)> values)
     {
-        var topTen = values.OrderBy(x => x.Item2).Take(10).ToList();
+        var topTen = values.OrderByDescending(x => x.Item2).Take(10).ToList();
         var sb = new StringBuilder();
 
         var first = topTen.Take(1).FirstOrDefault();
@@ -87,19 +90,19 @@ public class TopCommands
 
         sb.AppendLine($"Top 10 players for {skill}").AppendLine();
         if (first != default)
-            sb.AppendLine("\ud83e\udd47 1st").AppendLine($"**{first.Item1}** - {first.Item2}")
+            sb.AppendLine("\ud83e\udd47 1st").AppendLine($"**{first.Item1}** - {first.Item2.ToString("N0", CultureInfo.InvariantCulture)}")
                 .AppendLine();
         if (second != default)
-            sb.AppendLine("\ud83e\udd48 1st").AppendLine($"**{second.Item1}** - {second.Item2}")
+            sb.AppendLine("\ud83e\udd48 2nd").AppendLine($"**{second.Item1}** - {second.Item2.ToString("N0", CultureInfo.InvariantCulture)}")
                 .AppendLine();
         if (third != default)
-            sb.AppendLine("\ud83e\udd49 1st").AppendLine($"**{third.Item1}** - {third.Item2}")
+            sb.AppendLine("\ud83e\udd49 3rd").AppendLine($"**{third.Item1}** - {third.Item2.ToString("N0", CultureInfo.InvariantCulture)}")
                 .AppendLine();
 
         var position = 4;
         foreach (var player in topTen.Skip(3))
         {
-            sb.AppendLine($"{position}. **{player.Item1}** - {player.Item2}");
+            sb.AppendLine($"{position}. **{player.Item1}** - {player.Item2.ToString("N0", CultureInfo.InvariantCulture)}");
             position++;
         }
 

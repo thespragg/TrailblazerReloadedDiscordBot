@@ -3,7 +3,13 @@ using Microsoft.Extensions.Hosting;
 
 namespace Domain.Workers;
 
-public class StatRetrievalWorker : IHostedService, IDisposable
+public interface IStatRetrievalWorker
+{
+    void Start();
+    void CheckStats(object? state);
+}
+
+public class StatRetrievalWorker : IStatRetrievalWorker
 {
     private Timer? _timer;
     private readonly IPlayerService _playerService;
@@ -13,13 +19,10 @@ public class StatRetrievalWorker : IHostedService, IDisposable
         _playerService = playerService;
     }
     
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
-        _timer = new Timer(CheckStats, null, TimeSpan.Zero, TimeSpan.FromMinutes(15));
-        return Task.CompletedTask;
-    }
+    public void Start()
+        => _timer = new Timer(CheckStats, null, TimeSpan.Zero, TimeSpan.FromMinutes(15));
 
-    private void CheckStats(object? state)
+    public void CheckStats(object? state)
     {
         var players = _playerService.GetPlayers().Value;
         if (players is null) return;
